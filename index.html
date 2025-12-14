@@ -48,7 +48,7 @@
   const loader = new THREE.GLTFLoader();
   loader.load('./prot.glb', gltf => {
     const model = gltf.scene;
-    model.scale.set(0.2,0.2,0.2); // уменьшаем, чтобы точно было видно
+    model.scale.set(0.1,0.1,0.1); // уменьшаем
     markerRoot.add(model);
   });
 
