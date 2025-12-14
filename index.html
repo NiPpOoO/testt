@@ -1,56 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>WebAR — Hiro marker</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="style.css" />
-  <!-- A-Frame -->
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <!-- AR.js for A-Frame (markers, preset hiro) -->
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
-  <!-- logic -->
-  <script src="./src/app.js" defer></script>
+  <meta charset="utf-8">
+  <title>WebAR Hiro — чистый код</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body, html { margin:0; padding:0; overflow:hidden; height:100%; }
+    canvas { position:fixed; top:0; left:0; width:100%; height:100%; }
+  </style>
+  <!-- three.js -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+  <!-- GLTF loader -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script>
+  <!-- AR.js three.js build -->
+  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/build/ar-threex.js"></script>
 </head>
 <body>
-  <div id="loadingMessage">Loading AR… point your camera at the Hiro marker</div>
+<script>
+  // Сцена, камера, рендерер
+  const scene = new THREE.Scene();
+  const camera = new THREE.Camera();
+  scene.add(camera);
 
-  <!-- A-Frame scene -->
-  <a-scene
-    embedded
-    arjs="sourceType: webcam; debugUIEnabled: false;"
-    renderer="logarithmicDepthBuffer: true"
-  >
-    <!-- Hiro marker (emits markerFound/markerLost) -->
-    <a-marker id="hiro-marker" preset="hiro" emitevents="true">
-      <!-- Your models appear ON the marker coordinates -->
-      <a-entity id="model-root" position="0 0 0">
-        <!-- Primary model -->
-        <a-entity
-          id="model1"
-          gltf-model="./prot.glb"
-          position="0 0 0"
-          rotation="0 0 0"
-          scale="0.5 0.5 0.5"
-          visible="false"
-        ></a-entity>
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  document.body.appendChild(renderer.domElement);
 
-        <!-- Optional second model (uncomment if needed) -->
-        <!--
-        <a-entity
-          id="model2"
-          gltf-model="./microFos3.glb"
-          position="0.2 0 0"
-          rotation="0 30 0"
-          scale="0.4 0.4 0.4"
-          visible="false"
-        ></a-entity>
-        -->
-      </a-entity>
-    </a-marker>
+  // AR.js источник (камера)
+  const source = new THREEx.ArToolkitSource({ sourceType: 'webcam' });
+  source.init(() => onResize());
+  window.addEventListener('resize', () => onResize());
+  function onResize(){
+    source.onResizeElement();
+    source.copyElementSizeTo(renderer.domElement);
+    if (arToolkitContext.arController !== null) {
+      source.copyElementSizeTo(arToolkitContext.arController.canvas);
+    }
+  }
 
-    <!-- Camera -->
-    <a-entity camera></a-entity>
-  </a-scene>
+  // AR.js контекст
+  const arToolkitContext = new THREEx.ArToolkitContext({
+    cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/data/camera_para.dat',
+    detectionMode: 'mono'
+  });
+  arToolkitContext.init(() => {
+    camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+  });
+
+  // Hiro marker
+  const markerRoot = new THREE.Group();
+  scene.add(markerRoot);
+  const markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+    type: 'pattern',
+    patternUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/data/patt.hiro',
+  });
+
+  // Загрузка модели
+  const loader = new THREE.GLTFLoader();
+  loader.load('./prot.glb', gltf => {
+    const model = gltf.scene;
+    model.scale.set(0.5, 0.5, 0.5);
+    markerRoot.add(model);
+  });
+
+  // Анимация
+  function animate(){
+    requestAnimationFrame(animate);
+    if (source.ready) arToolkitContext.update(source.domElement);
+    renderer.render(scene, camera);
+  }
+  animate();
+</script>
 </body>
 </html>
