@@ -4,8 +4,10 @@
   <meta charset="utf-8" />
   <title>WebAR Snowman — Debug</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <!-- A-Frame + AR.js (A-Frame build) -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+
   <link rel="stylesheet" href="./src/style.css" />
   <script src="./src/script.js" defer></script>
   <script src="./src/debug-canvas.js" defer></script>
@@ -17,7 +19,7 @@
     vr-mode-ui="enabled: false"
     renderer="logarithmicDepthBuffer: true;"
   >
-    <!-- NFT снеговик -->
+    <!-- NFT метка снеговика -->
     <a-nft
       id="nft-snowman"
       type="nft"
@@ -25,6 +27,7 @@
       emitevents="true"
       minConfidence="0.25"
     >
+      <!-- Индикатор: куб. Готов заменить на модель (см. инструкции ниже) -->
       <a-box id="cube-nft" position="0 0 0" depth="0.5" height="0.5" width="0.5" color="#ff4444"></a-box>
     </a-nft>
 
@@ -37,7 +40,7 @@
   </a-scene>
 
   <!-- UI -->
-  <div id="ui">Наведи камеру на снеговика</div>
+  <div id="ui">Наведи камеру на снеговика или метку Hiro</div>
   <div id="test-status">🔍 Статус: ничего не найдено</div>
   <button id="shot">📸 Снимок</button>
 </body>

@@ -1,6 +1,4 @@
-// src/debug-canvas.js
-// Создаёт видимые debug canvases, анализирует кадры и запускает эвристический фолбэк.
-// Экспортирует в window.__debugCanvas.startHeur/stopHeur для управления из script.js
+// Экспортирует window.__debugCanvas.startHeur/stopHeur и вызывает window.__heuristicHandler() при срабатывании
 
 (function () {
   'use strict';
@@ -24,7 +22,7 @@
       });
     }
 
-    // оригинал canvas
+    // оригинальный кадр
     let orig = document.getElementById('debug-test-orig');
     if (!orig) {
       orig = document.createElement('canvas');
@@ -34,7 +32,7 @@
       wrap.appendChild(orig);
     }
 
-    // маска canvas
+    // маска
     let mask = document.getElementById('debug-test-mask');
     if (!mask) {
       mask = document.createElement('canvas');
@@ -47,7 +45,6 @@
     const origCtx = orig.getContext('2d');
     const maskCtx = mask.getContext('2d');
 
-    // параметры
     const INTERVAL_MS = 300;
     const HEUR_THRESHOLD = 0.02; // доля пикселей
     const CONS_FRAMES = 2;
@@ -96,15 +93,20 @@
       if (history.length > CONS_FRAMES) history.shift();
       const sum = history.reduce((a, b) => a + b, 0);
 
-      // обновляем UI строку, если есть
       const statusEl = document.getElementById('test-status');
       if (statusEl) statusEl.textContent = `Фолбэк: ${(ratio * 100).toFixed(2)}% (hist ${sum}/${history.length})`;
 
       if (sum >= CONS_FRAMES) {
-        // сработал фолбэк — уведомляем основную логику
-        const evt = new CustomEvent('heuristicFound');
-        window.dispatchEvent(evt);
         stopHeur();
+        try {
+          if (typeof window.__heuristicHandler === 'function') {
+            window.__heuristicHandler();
+          } else {
+            window.dispatchEvent(new CustomEvent('heurFoundDefault'));
+          }
+        } catch (e) {
+          console.warn('heuristic handler error', e);
+        }
       }
       return ratio;
     }
@@ -126,29 +128,7 @@
       if (statusEl) statusEl.textContent = '🔍 Статус: ничего не найдено';
     }
 
-    // слушаем событие из main script, чтобы вызвать onFound('heur')
-    window.addEventListener('heuristicFound', () => {
-      // вызываем обработчик в main (если он есть)
-      const handler = window.__heuristicHandler;
-      if (typeof handler === 'function') handler();
-    });
-
-    // экспорт управления
-    window.__debugCanvas = {
-      startHeur,
-      stopHeur
-    };
-
-    // экспорт обработчика: main script должен установить window.__heuristicHandler = () => { ... }
-    // если main не установил — по умолчанию вызовим событие, которое main может слушать
-    if (!window.__heuristicHandler) {
-      window.__heuristicHandler = () => {
-        // по умолчанию — диспатчим событие для backward-совместимости
-        const e = new CustomEvent('heurFoundDefault');
-        window.dispatchEvent(e);
-      };
-    }
-
+    window.__debugCanvas = { startHeur, stopHeur };
     console.log('debug-canvas: ready');
   });
 })();

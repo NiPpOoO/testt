@@ -1,7 +1,7 @@
 {
   "name": "webar-snowman",
   "version": "1.0.0",
-  "description": "WebAR demo: Fox model near Snowman NFT marker",
+  "description": "WebAR demo: models near Snowman NFT and Hiro markers",
   "scripts": {
     "start": "npx http-server -p 8080"
   },
