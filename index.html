@@ -8,11 +8,13 @@
   </head>
   <body>
     <div class="ui">
+      <button id="startAR">Запустить AR</button>
       <button id="swapCamera">Переключить камеру</button>
-      <span id="status">Загрузка…</span>
+      <span id="status">Готово к запуску</span>
     </div>
 
-    <video id="video" playsinline style="display:none;"></video>
+    <!-- скрытое видео для ручного переключения камеры -->
+    <video id="video" playsinline muted autoplay style="display:none;"></video>
 
     <script type="importmap">
       {

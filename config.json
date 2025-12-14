@@ -1,17 +1,8 @@
 {
-  "camera": {
-    "fov": 60,
-    "ratio": 1.3333333,
-    "near": 0.01,
-    "far": 2000
-  },
+  "camera": { "fov": 60, "ratio": 1.3333333, "near": 0.01, "far": 2000 },
   "renderer": {
-    "alpha": true,
-    "antialias": true,
-    "premultipliedAlpha": true,
-    "stencil": true,
-    "precision": "mediump",
-    "depth": true,
+    "alpha": true, "antialias": true, "premultipliedAlpha": true,
+    "stencil": true, "precision": "mediump", "depth": true,
     "logarithmicDepthBuffer": true
   }
 }
