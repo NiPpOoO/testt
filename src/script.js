@@ -20,15 +20,15 @@ async function initAR() {
   try {
     setStatus("Инициализация…");
 
-    const markerPath = ["assets/markers/snowman/snowman"];
-    const markerName = ["snowman"];
+    const markerPaths = ["assets/markers/snowman"];
+    const markerNames = ["snowman"];
 
     const nft = await ARnft.init(
       width,
       height,
-      [markerPath],
-      [markerName],
-      "examples/config.json",
+      [markerPaths],
+      [markerNames],
+      "./config.json",
       true
     );
 
@@ -61,7 +61,6 @@ async function initAR() {
 
       const renderer = sceneThreejs.getRenderer();
       const scene = sceneThreejs.getScene();
-      const camera = sceneThreejs.getCamera();
 
       renderer.outputEncoding = THREE.sRGBEncoding;
       renderer.physicallyCorrectLights = true;
@@ -70,18 +69,15 @@ async function initAR() {
       light.position.set(0.5, 0.3, 0.866);
       scene.add(light);
 
-      // Создаём классический блок (куб)
+      // Классический куб
       const geometry = new THREE.BoxGeometry(1, 1, 1);
       const material = new THREE.MeshStandardMaterial({ color: "#00ccff" });
       const cube = new THREE.Mesh(geometry, material);
-      cube.scale.set(80, 80, 80); // масштаб под AR
+      cube.scale.set(80, 80, 80);
       cube.visible = false;
 
-      scene.add(cube);
-
-      // Привязка к маркеру
       const nftAddTJS = new NFTaddTJS(nft.uuid);
-      nftAddTJS.addObject(cube, "snowman");
+      nftAddTJS.add(cube, "snowman", false);
 
       const tick = () => {
         sceneThreejs.draw();
@@ -96,7 +92,7 @@ async function initAR() {
       setStatus("Снеговик найден ✔");
     });
     document.addEventListener(`nftTrackingLost-${nft.uuid}-snowman`, () => {
-      setStatus("Потерян трекинг, наведи камеру снова…");
+      setStatus("Трекинг потерян, наведи камеру снова…");
     });
 
     swapBtn?.addEventListener("click", async () => {
@@ -117,7 +113,7 @@ async function initAR() {
     });
   } catch (err) {
     console.error(err);
-    setStatus("Ошибка инициализации. Проверь пути и HTTPS.");
+    setStatus("Ошибка инициализации. Проверь пути, HTTPS и консоль.");
   }
 }
 

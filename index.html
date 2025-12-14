@@ -4,20 +4,16 @@
     <meta charset="utf-8" />
     <title>Snowman WebAR</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link rel="preconnect" href="https://rawcdn.githack.com" />
     <link rel="stylesheet" href="./src/style.css" />
   </head>
   <body>
-    <!-- UI (минимум) -->
     <div class="ui">
       <button id="swapCamera">Переключить камеру</button>
       <span id="status">Загрузка…</span>
     </div>
 
-    <!-- Видео-элемент для камеры (ARnft сам создаёт canvas) -->
     <video id="video" playsinline style="display:none;"></video>
 
-    <!-- Importmap: three + ARnft + ARnft-threejs с CDN -->
     <script type="importmap">
       {
         "imports": {
@@ -28,7 +24,6 @@
       }
     </script>
 
-    <!-- Основная логика -->
     <script type="module" src="./src/script.js"></script>
   </body>
 </html>
