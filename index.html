@@ -1,33 +1,24 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="utf-8">
-  <title>WebAR Hiro — чистый код</title>
+  <title>Hiro AR minimal</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body, html { margin:0; padding:0; overflow:hidden; height:100%; }
-    canvas { position:fixed; top:0; left:0; width:100%; height:100%; }
-  </style>
-  <!-- three.js -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <!-- GLTF loader -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script>
-  <!-- AR.js three.js build -->
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/build/ar-threex.js"></script>
+  <style>body{margin:0;overflow:hidden}</style>
 </head>
 <body>
 <script>
-  // Сцена, камера, рендерер
   const scene = new THREE.Scene();
   const camera = new THREE.Camera();
   scene.add(camera);
 
   const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(window.devicePixelRatio);
   document.body.appendChild(renderer.domElement);
 
-  // AR.js источник (камера)
   const source = new THREEx.ArToolkitSource({ sourceType: 'webcam' });
   source.init(() => onResize());
   window.addEventListener('resize', () => onResize());
@@ -39,7 +30,6 @@
     }
   }
 
-  // AR.js контекст
   const arToolkitContext = new THREEx.ArToolkitContext({
     cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/data/camera_para.dat',
     detectionMode: 'mono'
@@ -48,23 +38,20 @@
     camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
   });
 
-  // Hiro marker
   const markerRoot = new THREE.Group();
   scene.add(markerRoot);
-  const markerControls = new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
+  new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
     type: 'pattern',
-    patternUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/data/patt.hiro',
+    patternUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/data/patt.hiro'
   });
 
-  // Загрузка модели
   const loader = new THREE.GLTFLoader();
   loader.load('./prot.glb', gltf => {
     const model = gltf.scene;
-    model.scale.set(0.5, 0.5, 0.5);
+    model.scale.set(0.2,0.2,0.2); // уменьшаем, чтобы точно было видно
     markerRoot.add(model);
   });
 
-  // Анимация
   function animate(){
     requestAnimationFrame(animate);
     if (source.ready) arToolkitContext.update(source.domElement);
