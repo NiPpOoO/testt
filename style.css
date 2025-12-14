@@ -1,0 +1,77 @@
+/* General styles for body */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden; /* Ensures no scrollbars appear on mobile */
+    background-color: #f0f0f0; /* Background color for loading page */
+}
+
+/* Styles for A-Frame scene */
+a-scene {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+}
+
+/* Loading message */
+#loadingMessage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: #555;
+    text-align: center;
+    z-index: 1;
+}
+
+/* AR interaction buttons (optional) */
+#ar-button {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    z-index: 2;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+#ar-button:hover {
+    background-color: #0056b3;
+}
+
+/* Message to users who are not in AR-supported environments */
+#no-ar-message {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    color: #ff0000;
+    text-align: center;
+    z-index: 2;
+}
+
+/* Overlay text or additional instructions */
+#overlay {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    color: white;
+    font-size: 18px;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+    z-index: 3;
+}
