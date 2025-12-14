@@ -1,63 +1,45 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>Hiro AR minimal</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/examples/js/loaders/GLTFLoader.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/build/ar-threex.js"></script>
-  <style>body{margin:0;overflow:hidden}</style>
-</head>
-<body>
-<script>
-  const scene = new THREE.Scene();
-  const camera = new THREE.Camera();
-  scene.add(camera);
+  <head>
+    <meta charset="utf-8" />
+    <title>WebAR Snowman — Debug</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+    <link rel="stylesheet" href="./src/style.css" />
+    <script src="./src/script.js" defer></script>
+    <script src="./src/debug-canvas.js" defer></script>
+  </head>
+  <body style="margin:0;overflow:hidden;">
+    <!-- AR сцена -->
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; debugUIEnabled: true; detectionMode: color; patternRatio: 0.5;"
+      vr-mode-ui="enabled: false"
+      renderer="logarithmicDepthBuffer: true;"
+    >
+      <!-- NFT метка снеговика -->
+      <a-nft
+        id="nft-snowman"
+        type="nft"
+        url="./assets/markers/snowman/snowman"
+        emitevents="true"
+        minConfidence="0.25"
+      >
+        <a-box id="cube-nft" position="0 0 0" depth="0.5" height="0.5" width="0.5" color="#ff4444"></a-box>
+      </a-nft>
 
-  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+      <!-- Hiro метка (контроль) -->
+      <a-marker id="marker-hiro" preset="hiro" emitevents="true">
+        <a-box id="cube-hiro" position="0 0.25 0" depth="0.5" height="0.5" width="0.5" color="#4444ff"></a-box>
+      </a-marker>
 
-  const source = new THREEx.ArToolkitSource({ sourceType: 'webcam' });
-  source.init(() => onResize());
-  window.addEventListener('resize', () => onResize());
-  function onResize(){
-    source.onResizeElement();
-    source.copyElementSizeTo(renderer.domElement);
-    if (arToolkitContext.arController !== null) {
-      source.copyElementSizeTo(arToolkitContext.arController.canvas);
-    }
-  }
+      <a-entity camera></a-entity>
+    </a-scene>
 
-  const arToolkitContext = new THREEx.ArToolkitContext({
-    cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/data/camera_para.dat',
-    detectionMode: 'mono'
-  });
-  arToolkitContext.init(() => {
-    camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
-  });
-
-  const markerRoot = new THREE.Group();
-  scene.add(markerRoot);
-  new THREEx.ArMarkerControls(arToolkitContext, markerRoot, {
-    type: 'pattern',
-    patternUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/three.js/data/patt.hiro'
-  });
-
-  const loader = new THREE.GLTFLoader();
-  loader.load('./prot.glb', gltf => {
-    const model = gltf.scene;
-    model.scale.set(0.1,0.1,0.1); // уменьшаем
-    markerRoot.add(model);
-  });
-
-  function animate(){
-    requestAnimationFrame(animate);
-    if (source.ready) arToolkitContext.update(source.domElement);
-    renderer.render(scene, camera);
-  }
-  animate();
-</script>
-</body>
+    <!-- UI (вне сцены) -->
+    <div id="ui">Наведи камеру на снеговика</div>
+    <div id="test-status">🔍 Статус: ничего не найдено</div>
+    <button id="shot">📸 Снимок</button>
+  </body>
 </html>

@@ -1,68 +1,37 @@
-# WebAR Tutorial
+Проверка
 
-This project is a simple guide to help you set up a WebAR experience using [Google's Model Viewer](https://modelviewer.dev/). 
-It includes step-by-step instructions to host your 3D models (GLB for Android and USDZ for iOS) on GitHub Pages.
+Запуск локального HTTP-сервера (обязательно для корректной загрузки моделей и маркеров):
 
-You can **[Test this app here]**: (https://gunteralce.github.io/webar-tutorial/)
-
----
-
-## Features
-- **Cross-platform AR:** Supports Android (GLB) and iOS (USDZ) 3D models.
-- **GitHub Pages Deployment:** Easily host your WebAR experience online.
-- **Customizable Design:** Modify the `index.html` and `style.css` files to personalize your page.
-
----
-
-## Prerequisites
-Before starting, make sure you have:
-1. A [GitHub account](https://github.com/). If you don't have one, sign up [here](https://github.com/join).
-2. A 3D model:
-   - GLB format (for Android devices).
-   - USDZ format (for iOS devices).  
-   Download free models from [Poly Pizza](https://polypizza.com/), [Sketchfab](https://sketchfab.com/), or create your own.
-
----
-
-
-## Quick Start Guide
-
-### 1. Fork This Repository
-Click the "Fork" button in the top-right corner to create a copy of this repository in your GitHub account.
-
----
-
-### 2. Clone Your Repository
-Clone the forked repository to your local machine:
 ```bash
-git clone https://github.com/<your-username>/webar-tutorial.git
-cd webar-tutorial
+# Когда у вас установлен Node (npm):
+npx http-server . -p 8080
 
-### 3. Add Your 3D Models
-Upload your GLB and USDZ files into the repository. Replace the file paths in the index.html file with your model's filenames:
-```bash
-src="https://raw.githubusercontent.com/<your-username>/webar-tutorial/main/your-model.glb"
-ios-src="https://raw.githubusercontent.com/<your-username>/webar-tutorial/main/your-model.usdz"
+# Или через Python 3 встроенный сервер:
+python -m http.server 8080
 ```
 
----
+Откройте в браузере: http://localhost:8080
 
-### 4. Publish with GitHub Pages
-1. Go to Settings in your repository.
-2. Scroll down to GitHub Pages.
-3. Under Branch, select main and click Save.
-4. Your WebAR page will be published at:
+Важно: современные браузеры требуют HTTPS или localhost для доступа к камере; используйте `localhost` или развертывайте на HTTPS, чтобы тестирование камеры работало на мобильных устройствах.
+
+Если модели не появляются:
+- Проверьте консоль разработчика (F12) на предмет ошибок загрузки или CORS.
+- Убедитесь, что файлы `assets/models/*.glb` доступны по URL (open: http://localhost:8080/assets/models/snowman.glb)
+- Убедитесь, что `assets/markers/snowman/*.iset` и `*.fset*` доступны и правильно указаны в `a-nft url`.
+
+Отладка моделей (быстрее):
+- На странице нажмите **Показать модели (превью)** — это отобразит модели прямо перед камерой, минуя маркер. Если модели видны в превью — значит, они загружаются, но маркер не распознаётся.
+- Проверьте консоль на сообщения: `[model] fox loaded`, `[model] hare loaded` и размеры (bbox size). Если их нет — проверьте ошибки загрузки ассетов или CORS.
+
+Онлайн-логи
+- В репозитории есть простой локальный лог-сервер для сбора логов из браузера и просмотра их в реальном времени (для разработки): `tools/log-server.js`.
+- Запустите сервер:
+
 ```bash
-https://<your-username>.github.io/webar-tutorial/.
+npm install
+npm run log-server
 ```
----
 
-### 5. Test Your WebAR
-1. Open the URL on an AR-compatible device.
-2. Tap the AR button to view your model in augmented reality.
+Откройте в браузере: http://localhost:3001 и включите «Онлайн-логи» в интерфейсе (переключатель внизу).
 
----
-
-### 6. Customization
-- **Edit Layout:** Modify style.css for a custom design.
-- **Change AR Behavior:** Update the <model-viewer> tag in index.html.
+Важно: включайте онлайн-логи только при разработке: логирование может содержать чувствительные данные (маркеры, ошибки, т.д.).
