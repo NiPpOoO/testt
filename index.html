@@ -1,47 +1,34 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8" />
-  <title>WebAR Snowman — Debug</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <!-- A-Frame + AR.js (A-Frame build) -->
-  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <title>Snowman WebAR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preconnect" href="https://rawcdn.githack.com" />
+    <link rel="stylesheet" href="./src/style.css" />
+  </head>
+  <body>
+    <!-- UI (минимум) -->
+    <div class="ui">
+      <button id="swapCamera">Переключить камеру</button>
+      <span id="status">Загрузка…</span>
+    </div>
 
-  <link rel="stylesheet" href="./src/style.css" />
-  <script src="./src/script.js" defer></script>
-  <script src="./src/debug-canvas.js" defer></script>
-</head>
-<body style="margin:0;overflow:hidden;">
-  <a-scene
-    embedded
-    arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono;"
-    vr-mode-ui="enabled: false"
-    renderer="logarithmicDepthBuffer: true;"
-  >
-    <!-- NFT метка снеговика -->
-    <a-nft
-      id="nft-snowman"
-      type="nft"
-      url="./assets/markers/snowman/snowman"
-      emitevents="true"
-      minConfidence="0.25"
-    >
-      <!-- Индикатор: куб. Готов заменить на модель (см. инструкции ниже) -->
-      <a-box id="cube-nft" position="0 0 0" depth="0.5" height="0.5" width="0.5" color="#ff4444"></a-box>
-    </a-nft>
+    <!-- Видео-элемент для камеры (ARnft сам создаёт canvas) -->
+    <video id="video" playsinline style="display:none;"></video>
 
-    <!-- Hiro метка -->
-    <a-marker id="marker-hiro" preset="hiro" emitevents="true">
-      <a-box id="cube-hiro" position="0 0.25 0" depth="0.5" height="0.5" width="0.5" color="#4444ff"></a-box>
-    </a-marker>
+    <!-- Importmap: three + ARnft + ARnft-threejs с CDN -->
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+          "arnft-threejs": "https://raw.githack.com/webarkit/ARnft-threejs/master/dist/ARnftThreejs.mjs",
+          "arnft": "https://raw.githack.com/webarkit/ARnft/master/dist/ARnft.mjs"
+        }
+      }
+    </script>
 
-    <a-entity camera></a-entity>
-  </a-scene>
-
-  <!-- UI -->
-  <div id="ui">Наведи камеру на снеговика или метку Hiro</div>
-  <div id="test-status">🔍 Статус: ничего не найдено</div>
-  <button id="shot">📸 Снимок</button>
-</body>
+    <!-- Основная логика -->
+    <script type="module" src="./src/script.js"></script>
+  </body>
 </html>

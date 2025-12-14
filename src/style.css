@@ -1,59 +1,36 @@
-/* UI */
-#ui {
-  position: fixed;
-  bottom: 80px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,0.65);
+/* src/style.css */
+html, body {
+  margin: 0;
+  height: 100%;
+  background: #000;
   color: #fff;
-  padding: 10px 18px;
-  border-radius: 8px;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial;
-  font-size: 16px;
-  z-index: 9999;
-  pointer-events: none;
-  user-select: none;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
 }
 
-#test-status {
+.ui {
   position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(255,255,255,0.95);
-  color: #222;
-  padding: 8px 14px;
+  z-index: 10;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  background: rgba(20,20,20,0.6);
+  padding: 8px 10px;
+  border-radius: 8px;
+  backdrop-filter: blur(6px);
+}
+
+#swapCamera {
+  border: 0;
+  background: #1f62ff;
+  color: #fff;
+  padding: 8px 12px;
   border-radius: 6px;
-  font-size: 14px;
-  z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  pointer-events: none;
-  user-select: none;
-}
-
-button {
-  position: fixed;
-  bottom: 20px;
-  background: #ffffff;
-  border: none;
-  padding: 10px 14px;
-  margin: 0 6px;
-  border-radius: 8px;
-  font-size: 16px;
   cursor: pointer;
-  z-index: 9999;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  user-select: none;
-  pointer-events: auto;
 }
 
-#shot { left: 20px; }
-
-@media (max-width: 600px) {
-  #ui { font-size: 14px; padding: 8px 12px; bottom: 90px; }
-  #test-status { font-size: 13px; padding: 6px 10px; top: 12px; }
-  button { padding: 10px 12px; font-size: 15px; }
+#status {
+  font-size: 14px;
+  opacity: 0.9;
 }
-
-/* debug canvases styling */
-#debug-test-wrap canvas { box-shadow: 0 2px 6px rgba(0,0,0,0.12); }

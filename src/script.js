@@ -1,95 +1,124 @@
-// Основная логика: реагируем на NFT и Hiro, управляем UI, подключаем эвристику из debug-canvas.js
+// src/script.js
+import * as THREE from "three";
+import arnft from "arnft";
+const { ARnft } = arnft;
+import ARnftThreejs from "arnft-threejs";
+const { SceneRendererTJS, NFTaddTJS } = ARnftThreejs;
 
-document.addEventListener('DOMContentLoaded', () => {
-  const ui = document.getElementById('ui');
-  const testStatus = document.getElementById('test-status');
-  const btnShot = document.getElementById('shot');
+const statusEl = document.getElementById("status");
+const swapBtn = document.getElementById("swapCamera");
 
-  const nftMarker = document.getElementById('nft-snowman');
-  const hiroMarker = document.getElementById('marker-hiro');
+let width = 640;
+let height = 480;
+let facingMode = "environment";
 
-  const cubeNft = document.getElementById('cube-nft');
-  const cubeHiro = document.getElementById('cube-hiro');
+function setStatus(msg) {
+  if (statusEl) statusEl.textContent = msg;
+}
 
-  function setUI(text) { if (ui) ui.textContent = text; }
-  function setTestStatus(text, color = '#222') {
-    if (!testStatus) return;
-    testStatus.textContent = text;
-    testStatus.style.color = color;
+async function initAR() {
+  try {
+    setStatus("Инициализация…");
+
+    const markerPath = ["assets/markers/snowman/snowman"];
+    const markerName = ["snowman"];
+
+    const nft = await ARnft.init(
+      width,
+      height,
+      [markerPath],
+      [markerName],
+      "examples/config.json",
+      true
+    );
+
+    document.addEventListener("containerEvent", function () {
+      const canvas = document.getElementById("canvas");
+      const fov = (0.8 * 180) / Math.PI;
+      const ratio = window.innerWidth / window.innerHeight;
+
+      const config = {
+        renderer: {
+          alpha: true,
+          antialias: true,
+          context: null,
+          precision: "mediump",
+          premultipliedAlpha: true,
+          stencil: true,
+          depth: true,
+          logarithmicDepthBuffer: true
+        },
+        camera: {
+          fov: fov,
+          ratio: ratio,
+          near: 0.01,
+          far: 2000
+        }
+      };
+
+      const sceneThreejs = new SceneRendererTJS(config, canvas, nft.uuid, true);
+      sceneThreejs.initRenderer();
+
+      const renderer = sceneThreejs.getRenderer();
+      const scene = sceneThreejs.getScene();
+      const camera = sceneThreejs.getCamera();
+
+      renderer.outputEncoding = THREE.sRGBEncoding;
+      renderer.physicallyCorrectLights = true;
+
+      const light = new THREE.DirectionalLight("#fff", 0.9);
+      light.position.set(0.5, 0.3, 0.866);
+      scene.add(light);
+
+      // Создаём классический блок (куб)
+      const geometry = new THREE.BoxGeometry(1, 1, 1);
+      const material = new THREE.MeshStandardMaterial({ color: "#00ccff" });
+      const cube = new THREE.Mesh(geometry, material);
+      cube.scale.set(80, 80, 80); // масштаб под AR
+      cube.visible = false;
+
+      scene.add(cube);
+
+      // Привязка к маркеру
+      const nftAddTJS = new NFTaddTJS(nft.uuid);
+      nftAddTJS.addObject(cube, "snowman");
+
+      const tick = () => {
+        sceneThreejs.draw();
+        requestAnimationFrame(tick);
+      };
+      tick();
+
+      setStatus("Готово: наведи камеру на снеговика.");
+    });
+
+    document.addEventListener(`getMatrixGL_RH-${nft.uuid}-snowman`, () => {
+      setStatus("Снеговик найден ✔");
+    });
+    document.addEventListener(`nftTrackingLost-${nft.uuid}-snowman`, () => {
+      setStatus("Потерян трекинг, наведи камеру снова…");
+    });
+
+    swapBtn?.addEventListener("click", async () => {
+      facingMode = facingMode === "environment" ? "user" : "environment";
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: false,
+          video: { facingMode, width: { min: 480, max: 640 } }
+        });
+        const video = document.getElementById("video");
+        video.srcObject = stream;
+        await new Promise((res) => (video.onloadedmetadata = () => res()));
+        setStatus(`Камера: ${facingMode === "environment" ? "тыльная" : "фронтальная"}`);
+      } catch (err) {
+        console.error(err);
+        setStatus("Не удалось переключить камеру");
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    setStatus("Ошибка инициализации. Проверь пути и HTTPS.");
   }
+}
 
-  function resetUI() {
-    setUI('Наведи камеру на снеговика или Hiro');
-    setTestStatus('🔍 Статус: ничего не найдено', '#222');
-    cubeNft?.setAttribute('visible', 'true');
-    cubeNft?.setAttribute('color', '#ff4444');
-    cubeHiro?.setAttribute('visible', 'true');
-    cubeHiro?.setAttribute('color', '#4444ff');
-  }
-
-  function onFound(source) {
-    if (source === 'nft') {
-      setUI('Снеговик (NFT) найден 🎯');
-      setTestStatus('✅ Найден по NFT', 'green');
-      cubeNft?.setAttribute('color', '#22cc22');
-      cubeHiro?.setAttribute('visible', 'false');
-      window.__debugCanvas?.stopHeur();
-    } else if (source === 'hiro') {
-      setUI('Метка Hiro найдена 🎯');
-      setTestStatus('✅ Найден по Hiro', 'green');
-      cubeHiro?.setAttribute('color', '#22cc22');
-      cubeNft?.setAttribute('visible', 'false');
-      window.__debugCanvas?.stopHeur();
-    } else if (source === 'heur') {
-      setUI('Фолбэк: снеговик найден 🎯');
-      setTestStatus('✅ Найден по цвету', 'green');
-      cubeNft?.setAttribute('color', '#22cc22');
-      cubeHiro?.setAttribute('visible', 'false');
-    }
-
-    clearTimeout(window.__resetTimer);
-    window.__resetTimer = setTimeout(resetUI, 3000);
-  }
-
-  // Подписки на маркеры
-  nftMarker?.addEventListener('markerFound', () => onFound('nft'));
-  nftMarker?.addEventListener('markerLost', () => {
-    // через 1.2s запускаем эвристику (цветовой фолбэк), если NFT потерян
-    setTimeout(() => window.__debugCanvas?.startHeur(), 1200);
-  });
-
-  hiroMarker?.addEventListener('markerFound', () => onFound('hiro'));
-  hiroMarker?.addEventListener('markerLost', () => { /* no-op */ });
-
-  // Фолбэк уведомляет через handler
-  window.__heuristicHandler = () => onFound('heur');
-
-  // Снимок канваса
-  btnShot?.addEventListener('click', () => {
-    const canvas = document.querySelector('canvas');
-    if (!canvas) return setUI('Canvas не найден');
-    try {
-      const dataURL = canvas.toDataURL('image/png');
-      const a = document.createElement('a');
-      a.href = dataURL;
-      a.download = 'screenshot.png';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      setUI('Снимок сохранён');
-    } catch {
-      setUI('Ошибка при сохранении снимка');
-    }
-  });
-
-  // Стартовый UI
-  resetUI();
-
-  // Smoke test: проверка нужных элементов
-  window.addEventListener('load', () => {
-    const hasScene = !!document.querySelector('a-scene');
-    const hasHiro = !!document.getElementById('marker-hiro');
-    const hasNft = !!document.getElementById('nft-snowman');
-    console.log('[test] scene:', hasScene, 'hiro:', hasHiro, 'nft:', hasNft);
-  });
-});
+initAR();
