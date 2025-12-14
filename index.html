@@ -2,26 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>WebAR Hiro Marker</title>
+  <title>WebAR — Hiro marker</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="style.css" />
-  <!-- A-Frame + AR.js -->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  <!-- AR.js for A-Frame (markers, preset hiro) -->
   <script src="https://cdn.jsdelivr.net/gh/AR-js-org/AR.js/aframe/build/aframe-ar.min.js"></script>
-  <!-- наша логика -->
+  <!-- logic -->
   <script src="./src/app.js" defer></script>
 </head>
 <body>
-  <div id="loadingMessage">Loading AR experience, please wait...</div>
+  <div id="loadingMessage">Loading AR… point your camera at the Hiro marker</div>
 
-  <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;">
-    <!-- Hiro marker -->
+  <!-- A-Frame scene -->
+  <a-scene
+    embedded
+    arjs="sourceType: webcam; debugUIEnabled: false;"
+    renderer="logarithmicDepthBuffer: true"
+  >
+    <!-- Hiro marker (emits markerFound/markerLost) -->
     <a-marker id="hiro-marker" preset="hiro" emitevents="true">
-      <!-- Модель внутри маркера -->
-      <a-entity id="model" gltf-model="./assets/models/prot.glb"
-                position="0 0 0" scale="0.5 0.5 0.5" visible="false"></a-entity>
+      <!-- Your models appear ON the marker coordinates -->
+      <a-entity id="model-root" position="0 0 0">
+        <!-- Primary model -->
+        <a-entity
+          id="model1"
+          gltf-model="./prot.glb"
+          position="0 0 0"
+          rotation="0 0 0"
+          scale="0.5 0.5 0.5"
+          visible="false"
+        ></a-entity>
+
+        <!-- Optional second model (uncomment if needed) -->
+        <!--
+        <a-entity
+          id="model2"
+          gltf-model="./microFos3.glb"
+          position="0.2 0 0"
+          rotation="0 30 0"
+          scale="0.4 0.4 0.4"
+          visible="false"
+        ></a-entity>
+        -->
+      </a-entity>
     </a-marker>
 
+    <!-- Camera -->
     <a-entity camera></a-entity>
   </a-scene>
 </body>
