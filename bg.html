@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <title>Background → Africa (16:9)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="./src/style.css" />
+    <link rel="stylesheet" href="./src/bg-style.css" />
+  </head>
+  <body>
+    <div class="ui ui--panel">
+      <div class="ui__row">
+        <label class="ui__file">
+          <input id="file" type="file" accept="image/*" />
+          <span>Выбрать фото</span>
+        </label>
+        <button id="download" disabled>Скачать PNG (горизонтальное)</button>
+        <span id="status">Загрузите фото</span>
+      </div>
+
+      <div class="ui__row ui__controls">
+        <label>
+          Формат:
+          <select id="preset">
+            <option value="1920x1080" selected>1920×1080 (16:9)</option>
+            <option value="1280x720">1280×720 (16:9)</option>
+          </select>
+        </label>
+
+        <label>
+          Масштаб:
+          <input id="scale" type="range" min="0.7" max="1.4" step="0.01" value="0.95" />
+        </label>
+
+        <label>
+          Сдвиг X:
+          <input id="offsetX" type="range" min="-0.4" max="0.4" step="0.01" value="0" />
+        </label>
+
+        <label>
+          Сдвиг Y:
+          <input id="offsetY" type="range" min="-0.4" max="0.4" step="0.01" value="0.08" />
+        </label>
+
+        <label>
+          Смягчение края:
+          <input id="feather" type="range" min="0" max="16" step="1" value="6" />
+        </label>
+      </div>
+    </div>
+
+    <main class="stage">
+      <canvas id="out" width="1920" height="1080"></canvas>
+      <div class="hint">
+        Подсказка: если край “рваный”, увеличьте «Смягчение края». Если лицо обрезается — уменьшите «Масштаб» или подвиньте «Сдвиг X/Y».
+      </div>
+    </main>
+
+    <!-- MediaPipe Selfie Segmentation (глобальный SelfieSegmentation) -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js"></script>
+    <script type="module" src="./src/bg-replace.js"></script>
+  </body>
+</html>
